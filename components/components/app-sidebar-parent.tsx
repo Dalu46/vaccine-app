@@ -42,17 +42,23 @@ const data = {
       isActive: true,
     },
     {
+      title: "WHO Analytics",
+      url: "/parent-dashboard/analytics",
+      icon: SquareTerminal,
+      isActive: true,
+    },
+    {
       title: "Settings",
       url: "#",
       icon: Settings2,
       items: [
         {
           title: "General",
-          url: "#",
+          url: "/parent-dashboard/settings/general",
         },
         {
           title: "Notification",
-          url: "#",
+          url: "/parent-dashboard/settings/notification",
         },
       ],
     },

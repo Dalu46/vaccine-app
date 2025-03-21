@@ -7,6 +7,7 @@ import {
   Settings2,
   SquareTerminal,
   Activity,
+  Dice2
 } from "lucide-react";
 
 import { NavMain } from "@components/components/nav-main";
@@ -37,7 +38,13 @@ const data = {
   ],
   navMain: [
     {
-      title: "Overview",
+      title: "All Children List",
+      url: "/dashboard/children",
+      icon: Dice2,
+      isActive: true,
+    },
+    {
+      title: "Vaccinated Children",
       url: "/dashboard/overview",
       icon: SquareTerminal,
       isActive: true,

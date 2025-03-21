@@ -75,6 +75,9 @@ export default function ParentDashboard() {
               vaccinationDate: formattedVaccinationDate,  // Formatted date
               guardianName: data.guardianName,
               isVaccinated: data.isVaccinated, // Ensure all required properties are added
+              sex: data.sex,
+              location: data.location,
+              previousVaccines: data.previousVaccines
             };
           });
   

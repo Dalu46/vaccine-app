@@ -29,11 +29,6 @@ import { redirect } from 'next/navigation';
 import { useAuthStore } from "../../store/auth-store";
 
 export default function Overview() {
-  // const { user, isLoading } = useAuthStore((state) => ({
-  //   user: state.user,
-  //   isLoading: state.isLoading,
-  // }));
-
   const { toast } = useToast();
   const [vaccinated, setVaccinated] = useState<Vaccination[]>([]);
 
@@ -86,11 +81,31 @@ export default function Overview() {
             setVaccinated(vaccinatedChildren);
             console.log(vaccinatedChildren);
             setIsLoading(false);
+
+            if (vaccinatedChildren.length > 0) {
+              toast({
+                title: "Vaccinated Children Loaded",
+                description: `Successfully loaded ${vaccinatedChildren.length} vaccinated children.`,
+                duration: 3000,
+              });
+            } else {
+              toast({
+                title: "No Vaccinated Children",
+                description: "There are currently no vaccinated children in the system.",
+                duration: 3000,
+              });
+            }
           },
           (snapshotError) => {
             console.error("Error fetching children snapshot:", snapshotError);
             setError(snapshotError.message);
             setIsLoading(false);
+            toast({
+              title: "Error",
+              description: `Failed to load vaccinated children. ${snapshotError.message}`,
+              duration: 3000,
+              variant: "destructive",
+            });
           }
         );
 
@@ -99,6 +114,12 @@ export default function Overview() {
         console.error("Error fetching children:", error);
         setError(error.message);
         setIsLoading(false);
+        toast({
+          title: "Error",
+          description: `Failed to load vaccinated children. ${error.message}`,
+          duration: 3000,
+          variant: "destructive",
+        });
       }
     });
   };
@@ -108,21 +129,28 @@ export default function Overview() {
   }, [user]);
 
   if (error) {
-    redirect('/auth/login')
+    redirect('/auth/login');
   }
 
   return (
     <div className="p-4">
-      {/* {isLoading ? 'loading' : user?.email} */}
       <Card>
         <CardHeader>
           <CardTitle>Recently Vaccinated Children</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           {isLoading ? (
-            <p>Loading...</p>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-2xl font-semibold">Loading...</p>
+            </div>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-red-500 text-2xl font-semibold">{error}</p>
+            </div>
+          ) : vaccinated.length === 0 ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-gray-500 text-2xl font-semibold">No vaccinated children found.</p>
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -133,6 +161,8 @@ export default function Overview() {
                   <TableHead>Date</TableHead>
                   <TableHead>Parent/Guardian</TableHead>
                   <TableHead>Contact Email</TableHead>
+                  <TableHead>Sex</TableHead>
+                  <TableHead>Location</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -144,6 +174,9 @@ export default function Overview() {
                     <TableCell>{child.vaccinationDate}</TableCell>
                     <TableCell>{child.guardianName}</TableCell>
                     <TableCell>{child.parentEmail}</TableCell>
+                    <TableCell>{child.sex}</TableCell>
+                    {/* <TableCell>{child.previousVaccines}</TableCell> */}
+                    <TableCell>{child.location}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

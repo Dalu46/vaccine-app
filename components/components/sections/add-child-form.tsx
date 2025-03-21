@@ -22,42 +22,52 @@ import {
   SelectValue,
 } from "@components/components/ui/select";
 import { useToast } from "@components/hooks/use-toast";
-import { useAuthStore } from "../../../app/store/auth-store"; // Import the auth store
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  setDoc,
-  doc,
-} from "firebase/firestore";
+import { useAuthStore } from "../../../app/store/auth-store";
+import { collection, setDoc, doc } from "firebase/firestore";
 import { db } from "../../../app/firebase/config";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 
 export type Child = {
   id: string;
   name: string;
-  age: string;
+  age: number; // Changed to number
   vaccine: string;
   vaccinationDate?: string;
   guardianName: string;
   isVaccinated?: boolean;
   parentId?: string;
   parentEmail?: string;
+  previousVaccines?: string;
+  location?: string;
+  sex?: string;
 };
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  // age1: z.number().min(0).max(18),
-  age: z.string().min(1, {
-    message: "Please select age.",
-  }),
+  age: z.coerce
+    .number()
+    .min(0, {
+      message: "Age must be 0 or greater.",
+    })
+    .max(18, {
+      message: "Age must be 18 or less.",
+    }),
   vaccine: z.string().min(1, {
     message: "Please select a vaccine.",
   }),
+  sex: z.string().min(1, {
+    message: "Please select sex.",
+  }),
   guardianName: z.string().min(2, {
     message: "Guardian name must be at least 2 characters.",
+  }),
+  previousVaccines: z.string().min(1, { // Removed .optional() and added .min(1)
+    message: "Please enter previous vaccines.",
+  }),
+  location: z.string().min(1, { // Removed .optional() and added .min(1)
+    message: "Please enter a location.",
   }),
 });
 
@@ -65,7 +75,7 @@ type AddChildFormProps = {
   onAddChild: (
     child: Omit<
       Child,
-      "id" | "vaccinationDate" | "isVaccinated" | "parentId" | "parentEmail"
+      "id" | "vaccinationDate" | "isVaccinated" | "parentId" | "parentEmail" | "previousVaccines" | "location" | "sex"
     >
   ) => void;
 };
@@ -75,7 +85,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      age: "",
+      age: 0, // Default age is now a number
       vaccine: "",
       guardianName: "",
     },
@@ -84,8 +94,6 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
   const { toast } = useToast();
   const [vacDate, setVacdate] = useState<string>();
 
-  // Access the user and isLoading states from the auth store
-  // const user = useAuthStore((state) => state.user);
   const isLoading = useAuthStore((state) => state.isLoading);
 
   const [user, setUser] = useState<User | null>(null);
@@ -96,50 +104,36 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
       setUser(user);
     });
 
-    // Clean up the listener when the component unmounts
     return () => unsubscribe();
-  }, [auth, vacDate]); // Add auth as a dependency
+  }, [auth, vacDate]);
 
   if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/firebase.User
     console.log("User is signed in:", user);
     console.log("User UID:", user.uid);
     console.log("User Display Name:", user.displayName);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-      // Optionally add the user's name as the default guardianName if authenticated
-      // if (user) {
-      //   values.guardianName = user.displayName || user.email || values.guardianName;
-      // }
-
-      // Set vaccination date to one week ahead from current date
       const _vaccinationDate = new Date();
-      _vaccinationDate.setDate(_vaccinationDate.getDate() + 7); // Add 7 days
+      _vaccinationDate.setDate(_vaccinationDate.getDate() + 7);
 
-      // Create a child data object
       const childData = {
         ...values,
         parentId: user?.uid,
         parentEmail: user?.email,
         vaccinationDate: _vaccinationDate.toISOString(),
-        isVaccinated: false, // store the date as an ISO string
+        isVaccinated: false,
       };
 
-      // Check if the user is authenticated
       if (user) {
-        // Add the child to the Firestore database under the authenticated user's children collection
         setDoc(doc(collection(db, "users", user.uid, "children")), childData)
           .then(() => {
-            onAddChild(values); // call the onAddChild prop to refresh the parent component's state
-            form.reset(); // Reset form after submit
+            onAddChild(values);
+            form.reset();
             toast({
               title: "Child Added",
               description: `child has been added to the vaccination list.`,
             });
             setVacdate(_vaccinationDate.toISOString());
-            console.log(vacDate);
-            console.log(_vaccinationDate.toISOString());
             scheduleEmail(values.name, _vaccinationDate.toISOString());
           })
           .catch((error) => {
@@ -150,7 +144,6 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
             });
           });
       }
-      // sendImmediateEmail();
     }
 
     const sendImmediateEmail = async (name: string, date: string) => {
@@ -221,7 +214,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
 
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 md:overflow-scroll md:h-[600px]">
           <p className="text-gray-600">
             Signed in as <strong>{user.displayName || user.email}</strong>
           </p>
@@ -247,32 +240,71 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Child's Age</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter child's age"
+                    type="number" // Important: Set the input type to "number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter your child's age in years.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="sex"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sex</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select an age range" />
+                      <SelectValue placeholder="Select sex" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="0-3 months">0-3 months</SelectItem>
-                    <SelectItem value="4-8 months">4-8 months</SelectItem>
-                    <SelectItem value="9-12 months">9-12 months</SelectItem>
-                    <SelectItem value="1-3 years">1-3 years</SelectItem>
-                    <SelectItem value="4-7 years">4-7 years</SelectItem>
-                    <SelectItem value="8-12 years">8-12 years</SelectItem>
-                    <SelectItem value="13-18 years">13-18 years</SelectItem>
+                    <SelectItem value="Male">
+                      Male
+                    </SelectItem>
+                    <SelectItem value="Female">
+                      Female
+                    </SelectItem>
+                    <SelectItem value="not specified">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Select your child's age range.
+                  Select childs sex.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {/* -- */}
+          <FormField
+            control={form.control}
+            name="previousVaccines"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Previous Vaccines</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter previous vaccines" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Names of previous vaccines taking by the child (seperated by comma).
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* -- */}
           <FormField
             control={form.control}
             name="vaccine"
@@ -309,17 +341,35 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
               </FormItem>
             )}
           />
+          {/* -- */}
           <FormField
             control={form.control}
             name="guardianName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Guardian Name</FormLabel>
+                <FormLabel>Enter guardians name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter guardian's name" {...field} />
+                  <Input placeholder="Enter Guardians name" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Name of the child's parent or guardian.
+                  Guardians name
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* -- */}
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Location</FormLabel>
+                <FormControl>
+                  <Input placeholder="Manually enter childs's location" {...field} />
+                </FormControl>
+                <FormDescription>
+                  What is your child's current location?
                 </FormDescription>
                 <FormMessage />
               </FormItem>
