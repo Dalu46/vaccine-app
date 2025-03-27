@@ -5,9 +5,9 @@ import * as admin from "firebase-admin";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const serviceAccount = {
-  
-};
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS || "{}");
+console.log(process.env.NEXT_PUBLIC_FIREBASE_ADMIN_CREDENTIALS);
+
 
 if (!getApps().length) {
   try {

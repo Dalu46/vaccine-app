@@ -30,10 +30,11 @@ import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 export type Child = {
   id: string;
   name: string;
-  age: number; // Changed to number
+  age: number;
   vaccine: string;
   vaccinationDate?: string;
   guardianName: string;
+  guardianPhoneNumber: string; // Added guardianPhoneNumber
   isVaccinated?: boolean;
   parentId?: string;
   parentEmail?: string;
@@ -63,10 +64,14 @@ const formSchema = z.object({
   guardianName: z.string().min(2, {
     message: "Guardian name must be at least 2 characters.",
   }),
-  previousVaccines: z.string().min(1, { // Removed .optional() and added .min(1)
+  guardianPhoneNumber: z.string().min(10, {
+    // Added validation for phone number
+    message: "Please enter a valid phone number (at least 10 digits).",
+  }),
+  previousVaccines: z.string().min(1, {
     message: "Please enter previous vaccines.",
   }),
-  location: z.string().min(1, { // Removed .optional() and added .min(1)
+  location: z.string().min(1, {
     message: "Please enter a location.",
   }),
 });
@@ -75,7 +80,15 @@ type AddChildFormProps = {
   onAddChild: (
     child: Omit<
       Child,
-      "id" | "vaccinationDate" | "isVaccinated" | "parentId" | "parentEmail" | "previousVaccines" | "location" | "sex"
+      | "id"
+      | "vaccinationDate"
+      | "isVaccinated"
+      | "parentId"
+      | "parentEmail"
+      | "previousVaccines"
+      | "location"
+      | "sex"
+      | "guardianPhoneNumber" // Added guardianPhoneNumber
     >
   ) => void;
 };
@@ -85,9 +98,10 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      age: 0, // Default age is now a number
+      age: 0,
       vaccine: "",
       guardianName: "",
+      guardianPhoneNumber: "", // Added default value
     },
   });
 
@@ -131,10 +145,18 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
             form.reset();
             toast({
               title: "Child Added",
-              description: `child has been added to the vaccination list.`,
+              description: "Child has been added to the vaccination list.",
             });
             setVacdate(_vaccinationDate.toISOString());
             scheduleEmail(values.name, _vaccinationDate.toISOString());
+            sendRepeatedSms(
+              values.guardianPhoneNumber,
+              `Dear ${values.guardianName}, your child ${
+                values.name
+              } is scheduled for ${
+                values.vaccine
+              } vaccination on ${_vaccinationDate.toDateString()}. Please ensure they attend.`
+            );
           })
           .catch((error) => {
             console.error("Error adding child to database: ", error);
@@ -150,8 +172,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
       const emailData = {
         to: `${user?.email}`,
         subject: "Your Child's Polio Vaccination Scheduled",
-        message: `Dear ${user?.email},
-        
+        message: `Dear ${user?.email},        
   This email confirms that your child, ${name}, has been added to the polio vaccination list.
   
   Their vaccination is scheduled for: ${date}.
@@ -160,7 +181,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
   
   Sincerely,
   
-  The VaxTrack Team`,
+  The VaxTrack Team,      `,
       };
 
       console.log(JSON.stringify(emailData));
@@ -212,9 +233,39 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
       }, delayed);
     };
 
+    async function sendSms(to: string, body: string) {
+      const response = await fetch("/api/sendsms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to, body }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+    }
+
+    function sendRepeatedSms(to: string, body: string) {
+      let count = 0;
+      const intervalId = setInterval(() => {
+        sendSms(to, body);
+        count++;
+        toast({
+          title: "SMS Reminder Sent",
+          description: `Reminder ${count} of 3 sent to ${to}.`,
+        });
+
+        if (count >= 3) {
+          clearInterval(intervalId); // Stop after 3 times
+        }
+      }, 1 * 60 * 1000); // 2 minutes in milliseconds
+    }
+
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 md:overflow-scroll md:h-[600px]">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 md:overflow-scroll md:h-[600px]"
+        >
           <p className="text-gray-600">
             Signed in as <strong>{user.displayName || user.email}</strong>
           </p>
@@ -243,7 +294,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                 <FormControl>
                   <Input
                     placeholder="Enter child's age"
-                    type="number" // Important: Set the input type to "number"
+                    type="number"
                     {...field}
                   />
                 </FormControl>
@@ -271,18 +322,14 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Male">
-                      Male
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="not specified">
+                      Prefer not to say
                     </SelectItem>
-                    <SelectItem value="Female">
-                      Female
-                    </SelectItem>
-                    <SelectItem value="not specified">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Select childs sex.
-                </FormDescription>
+                <FormDescription>Select childs sex.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -298,7 +345,8 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                   <Input placeholder="Enter previous vaccines" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Names of previous vaccines taking by the child (seperated by comma).
+                  Names of previous vaccines taking by the child (seperated by
+                  comma).
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -351,8 +399,27 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                 <FormControl>
                   <Input placeholder="Enter Guardians name" {...field} />
                 </FormControl>
+                <FormDescription>Guardians name</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* -- */}
+          <FormField
+            control={form.control}
+            name="guardianPhoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Guardian's Phone Number</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter Guardian's Phone Number"
+                    type="tel" // Use tel for phone numbers
+                    {...field}
+                  />
+                </FormControl>
                 <FormDescription>
-                  Guardians name
+                  Enter the phone number of the child's guardian.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -366,7 +433,10 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
               <FormItem>
                 <FormLabel>Location</FormLabel>
                 <FormControl>
-                  <Input placeholder="Manually enter childs's location" {...field} />
+                  <Input
+                    placeholder="Manually enter childs's location"
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
                   What is your child's current location?
