@@ -43,26 +43,29 @@ export const blogPosts: BlogPost[] = [
       name: "Michael Foster",
       role: "Technology and Healthcare Innovator",
       href: "/blog/1",
-      imageUrl: "/assets/the-role-of-technology.jpeg"
+      imageUrl: "/assets/the-role-of-technology.jpeg",
     },
   },
   {
-    "id": "2",
-    "title": "Common Myths and Misconceptions About Vaccines",
-    "excerpt": "Despite the proven benefits of vaccines, vaccine hesitancy remains a significant challenge to public health efforts worldwide.",
-    "content": "Common Myths and Misconceptions About Vaccines\n\nIntroduction\nDespite overwhelming scientific evidence supporting vaccine safety and efficacy, misinformation continues to spread, causing some parents to hesitate when it comes to vaccinating their children. Misconceptions about vaccines can lead to unnecessary fear, delayed immunization, and increased risk of preventable diseases. Let’s explore and debunk some of the most common vaccine myths with factual, science-backed explanations.nMyth 1: “Vaccines Cause Autism”\n\nFact: No credible scientific evidence supports a link between vaccines and autism.\nThis myth originated from a 1998 study published in The Lancet, which falsely claimed that the measles, mumps, and rubella (MMR) vaccine was linked to autism. However, extensive research has since disproven this claim, and the study was retracted due to fraudulent data.\n\nScientific studies by the CDC, WHO, and independent researchers confirm:\n✔ Vaccines do not cause autism.\n✔ Autism is primarily influenced by genetics and environmental factors.\n✔ The misinformation has led to vaccine hesitancy, putting children at risk for preventable diseases.\n- Myth 2: “Natural Immunity Is Better Than Vaccination”\n\nFact: Natural infections can be severe or deadly, while vaccines provide a safer way to build immunity.\nSome believe that getting sick naturally builds stronger immunity than vaccines. While it’s true that surviving an infection can provide immunity, the risks are far too great.\n\nConsider these dangers of natural infection:\n- Measles – Can cause pneumonia, brain swelling (encephalitis), and even death.\n- Chickenpox – May lead to severe skin infections, pneumonia, and shingles later in life.\n- Polio – Can result in lifelong paralysis.\n\nVaccines provide immunity without exposing children to these life-threatening complications!\n\n Myth 3: “Too Many Vaccines Overload a Child’s Immune System”\n\nFact: A child’s immune system encounters thousands of germs daily—vaccines introduce only a small, controlled amount.\nSome parents worry that multiple vaccines at once could overwhelm their child’s immune system. This is not true!\n\nScience-backed facts:\n✔ Babies naturally encounter thousands of bacteria & viruses daily.\n✔ The number of antigens (immune system triggers) in vaccines is tiny compared to daily exposure.\n✔ Studies confirm that receiving multiple vaccines does not weaken the immune system.\n\nThe CDC’s recommended schedule is designed for maximum safety and protection.\n\n Myth 4: “Vaccines Contain Harmful Toxins”\n\nFact: Vaccine ingredients are carefully tested and completely safe in the small amounts used.\nSome claim vaccines contain harmful substances like mercury, aluminum, or formaldehyde. Here’s the reality:\n\nBreaking down the facts:\n- Thimerosal (mercury) was removed from most vaccines in 2001, even though it was safe.\n- Aluminum is used in tiny amounts to boost effectiveness and is found in higher levels in water and food.\n- Formaldehyde is naturally produced by the body in much larger amounts than what’s in vaccines.\n\nRegulatory agencies (FDA, CDC, WHO) ensure all vaccine ingredients meet the strictest safety standards!\n\n Myth 5: “If Other Kids Are Vaccinated, My Child Doesn’t Need to Be”\n\nFact: Herd immunity only works when enough people are vaccinated.\nSome parents believe that because most children in their community are vaccinated, their own child is automatically protected. This thinking is dangerous.\n\nWhy everyone should be vaccinated:\n✔ Herd immunity works only with high vaccination rates.\n✔ Some people (newborns, immunocompromised individuals) cannot be vaccinated and rely on others for protection.\n✔ Disease outbreaks happen when vaccination rates drop (e.g., recent measles outbreaks in unvaccinated communities).\n\nVaccinating your child protects not just them, but the entire community!\n\n Conclusion: The Importance of Vaccine Education\n\nMisinformation about vaccines can have serious consequences, leading to disease outbreaks and unnecessary suffering. Parents and caregivers should rely on credible sources like the CDC, WHO, and pediatricians for accurate information.\n\nVaccines are one of the greatest medical advancements in history, saving millions of lives each year. By understanding the facts and addressing common myths, we can protect our children and create a healthier future for everyone!\n",
-    "href": "#",
-    "coverImage": "/public/social-banner.png",
-    "description": "Debunking common myths about vaccines with science-backed explanations to address vaccine hesitancy.",
-    "date": "Feb 16, 2025",
-    "datetime": "2020-03-16",
-    "category": { "title": "Public Health", "href": "/blog/2" },
-    "author": {
-      "name": "Michael Foster",
-      "role": "Public Health Educator",
-      "href": "/blog/2",
-      "imageUrl": "/assets/vaccine-myths.jpeg"
-    }
+    id: "2",
+    title: "Common Myths and Misconceptions About Vaccines",
+    excerpt:
+      "Despite the proven benefits of vaccines, vaccine hesitancy remains a significant challenge to public health efforts worldwide.",
+    content:
+      "Common Myths and Misconceptions About Vaccines\n\nIntroduction\nDespite overwhelming scientific evidence supporting vaccine safety and efficacy, misinformation continues to spread, causing some parents to hesitate when it comes to vaccinating their children. Misconceptions about vaccines can lead to unnecessary fear, delayed immunization, and increased risk of preventable diseases. Let’s explore and debunk some of the most common vaccine myths with factual, science-backed explanations.nMyth 1: “Vaccines Cause Autism”\n\nFact: No credible scientific evidence supports a link between vaccines and autism.\nThis myth originated from a 1998 study published in The Lancet, which falsely claimed that the measles, mumps, and rubella (MMR) vaccine was linked to autism. However, extensive research has since disproven this claim, and the study was retracted due to fraudulent data.\n\nScientific studies by the CDC, WHO, and independent researchers confirm:\n✔ Vaccines do not cause autism.\n✔ Autism is primarily influenced by genetics and environmental factors.\n✔ The misinformation has led to vaccine hesitancy, putting children at risk for preventable diseases.\n- Myth 2: “Natural Immunity Is Better Than Vaccination”\n\nFact: Natural infections can be severe or deadly, while vaccines provide a safer way to build immunity.\nSome believe that getting sick naturally builds stronger immunity than vaccines. While it’s true that surviving an infection can provide immunity, the risks are far too great.\n\nConsider these dangers of natural infection:\n- Measles – Can cause pneumonia, brain swelling (encephalitis), and even death.\n- Chickenpox – May lead to severe skin infections, pneumonia, and shingles later in life.\n- Polio – Can result in lifelong paralysis.\n\nVaccines provide immunity without exposing children to these life-threatening complications!\n\n Myth 3: “Too Many Vaccines Overload a Child’s Immune System”\n\nFact: A child’s immune system encounters thousands of germs daily—vaccines introduce only a small, controlled amount.\nSome parents worry that multiple vaccines at once could overwhelm their child’s immune system. This is not true!\n\nScience-backed facts:\n✔ Babies naturally encounter thousands of bacteria & viruses daily.\n✔ The number of antigens (immune system triggers) in vaccines is tiny compared to daily exposure.\n✔ Studies confirm that receiving multiple vaccines does not weaken the immune system.\n\nThe CDC’s recommended schedule is designed for maximum safety and protection.\n\n Myth 4: “Vaccines Contain Harmful Toxins”\n\nFact: Vaccine ingredients are carefully tested and completely safe in the small amounts used.\nSome claim vaccines contain harmful substances like mercury, aluminum, or formaldehyde. Here’s the reality:\n\nBreaking down the facts:\n- Thimerosal (mercury) was removed from most vaccines in 2001, even though it was safe.\n- Aluminum is used in tiny amounts to boost effectiveness and is found in higher levels in water and food.\n- Formaldehyde is naturally produced by the body in much larger amounts than what’s in vaccines.\n\nRegulatory agencies (FDA, CDC, WHO) ensure all vaccine ingredients meet the strictest safety standards!\n\n Myth 5: “If Other Kids Are Vaccinated, My Child Doesn’t Need to Be”\n\nFact: Herd immunity only works when enough people are vaccinated.\nSome parents believe that because most children in their community are vaccinated, their own child is automatically protected. This thinking is dangerous.\n\nWhy everyone should be vaccinated:\n✔ Herd immunity works only with high vaccination rates.\n✔ Some people (newborns, immunocompromised individuals) cannot be vaccinated and rely on others for protection.\n✔ Disease outbreaks happen when vaccination rates drop (e.g., recent measles outbreaks in unvaccinated communities).\n\nVaccinating your child protects not just them, but the entire community!\n\n Conclusion: The Importance of Vaccine Education\n\nMisinformation about vaccines can have serious consequences, leading to disease outbreaks and unnecessary suffering. Parents and caregivers should rely on credible sources like the CDC, WHO, and pediatricians for accurate information.\n\nVaccines are one of the greatest medical advancements in history, saving millions of lives each year. By understanding the facts and addressing common myths, we can protect our children and create a healthier future for everyone!\n",
+    href: "#",
+    coverImage: "/public/social-banner.png",
+    description:
+      "Debunking common myths about vaccines with science-backed explanations to address vaccine hesitancy.",
+    date: "Feb 16, 2025",
+    datetime: "2020-03-16",
+    category: { title: "Public Health", href: "/blog/2" },
+    author: {
+      name: "Molokwu Daniel",
+      role: "Health Researcher",
+      href: "/blog/2",
+      imageUrl: "/assets/vaccine-myths.jpeg",
+    },
   },
   {
     id: "3",
@@ -127,29 +130,32 @@ export const blogPosts: BlogPost[] = [
     datetime: "2020-03-16",
     category: { title: "Parenting", href: "#" },
     author: {
-      name: "Michael Foster",
-      role: "Parenting Expert",
+      name: "Molokwu Daniel",
+      role: "Health Researcher",
       href: "/blog/3",
       imageUrl: "/assets/how-to-prepare.jpeg",
     },
   },
   {
-    "id": "4",
-    "title": "How to Know What Vaccines Your Child Needs",
-    "excerpt": "Ensuring your child receives the right vaccines at the right time is crucial for their health and protection against preventable diseases.",
-    "content": "How to Know What Vaccines Your Child Needs\n\nIntroduction\nVaccines play a vital role in protecting children from serious diseases. However, with so many vaccines available, it can be overwhelming for parents to keep track of what their child needs and when. This guide will help you understand how to determine the necessary vaccines for your child based on age, health status, and recommendations from healthcare authorities.\n\n 1. Follow the CDC’s Recommended Vaccine Schedule\nThe Centers for Disease Control and Prevention (CDC) and the World Health Organization (WHO) provide detailed vaccine schedules to ensure children receive immunity at the appropriate ages.\n\nKey vaccine milestones:\n✔ Birth – Hepatitis B (HepB)\n✔ 2 Months – DTaP, Polio (IPV), Hib, Pneumococcal (PCV), Rotavirus\n✔ 4 Months – Booster shots for 2-month vaccines\n✔ 6 Months – Influenza (yearly), additional boosters\n✔ 12-15 Months – MMR, Chickenpox (Varicella), Hepatitis A (HepA)\n✔ 4-6 Years – DTaP, MMR, Polio, Varicella\n✔ 11-12 Years – HPV, Tdap, Meningococcal\n✔ 16-18 Years – Meningococcal booster, catch-up vaccines if needed\n\nAction Tip: Check your country’s official health website for regional variations in the vaccine schedule.\n\n 2. Consider Your Child’s Health and Medical History\nSome children may have special medical conditions that require an adjusted vaccine schedule.\n\nFactors to discuss with your doctor:\n✔ Premature birth – Some preemies may need earlier vaccinations.\n✔ Weakened immune system – Children with certain illnesses may require special schedules.\n✔ Allergies – If your child has severe allergies (e.g., egg allergies), some vaccines may need alternatives.\n✔ Travel plans – Certain regions require additional vaccines like Yellow Fever or Typhoid.\n\nAction Tip: Always inform your child’s doctor about any past reactions to vaccines.\n\n 3. Use Digital Vaccine Trackers and Health Apps\nKeeping track of vaccine appointments can be challenging. Digital tools can simplify the process.\n\nHelpful Apps:\n✔ CDC’s Vaccine Schedules App – Official schedule & reminders.\n✔ WHO Vaccination Tracker – Global immunization guidance.\n✔ MyChart / Your Hospital’s Patient Portal – Personalized vaccine records.\n✔ Immunization Log Apps – Stores digital copies of vaccine certificates.\n\nAction Tip: Set reminders on your phone so you never miss an important vaccine date!\n\n 4. Talk to Your Pediatrician\nYour child’s doctor is the best resource for vaccine-related questions. They can provide personalized guidance based on your child's medical history and risk factors.\n\nKey questions to ask your pediatrician:\n✔ Are there any vaccines my child needs to catch up on?\n✔ Does my child need any additional vaccines based on our location or travel plans?\n✔ What side effects should I expect after vaccination?\n✔ Are there any exemptions my child qualifies for?\n\nAction Tip: Keep a written record of vaccines during doctor visits to ensure nothing is missed.\n\n 5. Stay Updated on New Vaccination Guidelines\nVaccine recommendations evolve as new medical research emerges. Stay informed to ensure your child receives the best protection.\n\nWhere to find trustworthy vaccine information?\n✔ CDC (Centers for Disease Control and Prevention) – cdc.gov\n✔ WHO (World Health Organization) – who.int\n✔ Your Local Health Department – Country/state-specific guidelines.\n✔ Your Child’s Pediatrician – Personalized advice.\n\nAction Tip: Follow official health agencies on social media for real-time updates.\n\n Conclusion: Protect Your Child’s Future with Vaccines\nKnowing what vaccines your child needs is an essential part of keeping them healthy and protected from preventable diseases. By following official schedules, using digital tools, consulting your doctor, and staying informed, you can ensure your child receives safe and effective immunization at the right time.\n\nVaccines save lives! Stay proactive, ask questions, and keep your child’s immunization records up to date.",
-    "href": "#",
-    "coverImage": "/public/vaccine-guide.png",
-    "description": "Understanding your child's vaccine needs is crucial for preventing diseases and ensuring long-term health.",
-    "date": "Mar 20, 2025",
-    "datetime": "2025-03-20",
-    "category": { "title": "Health", "href": "/blog/4" },
-    "author": {
-      "name": "Michael Foster",
-      "role": "Pediatric Health Specialist",
-      "href": "/blog/4",
-      "imageUrl": "/assets/what-vaccine-your-child-needs.jpeg"
-    }
+    id: "4",
+    title: "How to Know What Vaccines Your Child Needs",
+    excerpt:
+      "Ensuring your child receives the right vaccines at the right time is crucial for their health and protection against preventable diseases.",
+    content:
+      "How to Know What Vaccines Your Child Needs\n\nIntroduction\nVaccines play a vital role in protecting children from serious diseases. However, with so many vaccines available, it can be overwhelming for parents to keep track of what their child needs and when. This guide will help you understand how to determine the necessary vaccines for your child based on age, health status, and recommendations from healthcare authorities.\n\n 1. Follow the CDC’s Recommended Vaccine Schedule\nThe Centers for Disease Control and Prevention (CDC) and the World Health Organization (WHO) provide detailed vaccine schedules to ensure children receive immunity at the appropriate ages.\n\nKey vaccine milestones:\n✔ Birth – Hepatitis B (HepB)\n✔ 2 Months – DTaP, Polio (IPV), Hib, Pneumococcal (PCV), Rotavirus\n✔ 4 Months – Booster shots for 2-month vaccines\n✔ 6 Months – Influenza (yearly), additional boosters\n✔ 12-15 Months – MMR, Chickenpox (Varicella), Hepatitis A (HepA)\n✔ 4-6 Years – DTaP, MMR, Polio, Varicella\n✔ 11-12 Years – HPV, Tdap, Meningococcal\n✔ 16-18 Years – Meningococcal booster, catch-up vaccines if needed\n\nAction Tip: Check your country’s official health website for regional variations in the vaccine schedule.\n\n 2. Consider Your Child’s Health and Medical History\nSome children may have special medical conditions that require an adjusted vaccine schedule.\n\nFactors to discuss with your doctor:\n✔ Premature birth – Some preemies may need earlier vaccinations.\n✔ Weakened immune system – Children with certain illnesses may require special schedules.\n✔ Allergies – If your child has severe allergies (e.g., egg allergies), some vaccines may need alternatives.\n✔ Travel plans – Certain regions require additional vaccines like Yellow Fever or Typhoid.\n\nAction Tip: Always inform your child’s doctor about any past reactions to vaccines.\n\n 3. Use Digital Vaccine Trackers and Health Apps\nKeeping track of vaccine appointments can be challenging. Digital tools can simplify the process.\n\nHelpful Apps:\n✔ CDC’s Vaccine Schedules App – Official schedule & reminders.\n✔ WHO Vaccination Tracker – Global immunization guidance.\n✔ MyChart / Your Hospital’s Patient Portal – Personalized vaccine records.\n✔ Immunization Log Apps – Stores digital copies of vaccine certificates.\n\nAction Tip: Set reminders on your phone so you never miss an important vaccine date!\n\n 4. Talk to Your Pediatrician\nYour child’s doctor is the best resource for vaccine-related questions. They can provide personalized guidance based on your child's medical history and risk factors.\n\nKey questions to ask your pediatrician:\n✔ Are there any vaccines my child needs to catch up on?\n✔ Does my child need any additional vaccines based on our location or travel plans?\n✔ What side effects should I expect after vaccination?\n✔ Are there any exemptions my child qualifies for?\n\nAction Tip: Keep a written record of vaccines during doctor visits to ensure nothing is missed.\n\n 5. Stay Updated on New Vaccination Guidelines\nVaccine recommendations evolve as new medical research emerges. Stay informed to ensure your child receives the best protection.\n\nWhere to find trustworthy vaccine information?\n✔ CDC (Centers for Disease Control and Prevention) – cdc.gov\n✔ WHO (World Health Organization) – who.int\n✔ Your Local Health Department – Country/state-specific guidelines.\n✔ Your Child’s Pediatrician – Personalized advice.\n\nAction Tip: Follow official health agencies on social media for real-time updates.\n\n Conclusion: Protect Your Child’s Future with Vaccines\nKnowing what vaccines your child needs is an essential part of keeping them healthy and protected from preventable diseases. By following official schedules, using digital tools, consulting your doctor, and staying informed, you can ensure your child receives safe and effective immunization at the right time.\n\nVaccines save lives! Stay proactive, ask questions, and keep your child’s immunization records up to date.",
+    href: "#",
+    coverImage: "/public/vaccine-guide.png",
+    description:
+      "Understanding your child's vaccine needs is crucial for preventing diseases and ensuring long-term health.",
+    date: "Mar 20, 2025",
+    datetime: "2025-03-20",
+    category: { title: "Health", href: "/blog/4" },
+    author: {
+      name: "Molokwu Daniel",
+      role: "Health Researcher",
+      href: "/blog/4",
+      imageUrl: "/assets/what-vaccine-your-child-needs.jpeg",
+    },
   },
   {
     id: "5",
@@ -201,7 +207,7 @@ export const blogPosts: BlogPost[] = [
     category: { title: "Health", href: "#" },
     author: {
       name: "Molokwu Daniel",
-      role: "Co-Founder / CTO",
+      role: "Health Researcher",
       href: "#",
       imageUrl: "/assets/importance-of-vaccination.png",
       // "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",

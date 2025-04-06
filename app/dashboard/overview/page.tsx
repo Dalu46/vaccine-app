@@ -25,13 +25,16 @@ import {
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, User, getAuth } from "firebase/auth";
 import type { Child as Vaccination } from "@components/components/sections/add-child-form";
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 import { useAuthStore } from "../../store/auth-store";
+
+type VaccinatedChild = Vaccination & {
+  vaccinationDate?: string;
+};
 
 export default function Overview() {
   const { toast } = useToast();
-  const [vaccinated, setVaccinated] = useState<Vaccination[]>([]);
-
+  const [vaccinated, setVaccinated] = useState<VaccinatedChild[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -58,43 +61,41 @@ export default function Overview() {
         const unsubscribe = onSnapshot(
           childrenQuery,
           (snapshot) => {
-            const vaccinatedChildren = snapshot.docs.map((doc) => {
-              const data = doc.data();
-              const vaccinationDate =
-                data.vaccinationDate instanceof Timestamp
-                  ? data.vaccinationDate.toDate()
-                  : new Date(data.vaccinationDate);
+            const vaccinatedChildren: VaccinatedChild[] = snapshot.docs.map(
+              (doc) => {
+                const data = doc.data() as VaccinatedChild & {
+                  vaccinationDate?: Timestamp | string;
+                }; // Extend type dynamically
 
-              const formattedDate = new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }).format(vaccinationDate);
+                // Type guard for Timestamp
+                const isTimestamp = (
+                  date: Timestamp | string
+                ): date is Timestamp => {
+                  return date instanceof Timestamp;
+                };
 
-              return {
-                id: doc.id,
-                ...data,
-                vaccinationDate: formattedDate,
-              };
-            });
+                return {
+                  ...data, // Ensure all required properties are included
+                  id: doc.id, // Include document ID
+                  vaccinationDate: data.vaccinationDate
+                    ? isTimestamp(data.vaccinationDate)
+                      ? new Intl.DateTimeFormat("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }).format(data.vaccinationDate.toDate())
+                      : new Intl.DateTimeFormat("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }).format(new Date(data.vaccinationDate)) // Convert from string to Date
+                    : "Date not yet assigned", // Handle missing date
+                };
+              }
+            );
 
             setVaccinated(vaccinatedChildren);
-            console.log(vaccinatedChildren);
             setIsLoading(false);
-
-            if (vaccinatedChildren.length > 0) {
-              toast({
-                title: "Vaccinated Children Loaded",
-                description: `Successfully loaded ${vaccinatedChildren.length} vaccinated children.`,
-                duration: 3000,
-              });
-            } else {
-              toast({
-                title: "No Vaccinated Children",
-                description: "There are currently no vaccinated children in the system.",
-                duration: 3000,
-              });
-            }
           },
           (snapshotError) => {
             console.error("Error fetching children snapshot:", snapshotError);
@@ -129,7 +130,7 @@ export default function Overview() {
   }, [user]);
 
   if (error) {
-    redirect('/auth/login');
+    redirect("/auth/login");
   }
 
   return (
@@ -149,7 +150,9 @@ export default function Overview() {
             </div>
           ) : vaccinated.length === 0 ? (
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-gray-500 text-2xl font-semibold">No vaccinated children found.</p>
+              <p className="text-gray-500 text-2xl font-semibold">
+                No vaccinated children found.
+              </p>
             </div>
           ) : (
             <Table>
@@ -171,11 +174,12 @@ export default function Overview() {
                     <TableCell>{child.name}</TableCell>
                     <TableCell>{child.age}</TableCell>
                     <TableCell>{child.vaccine}</TableCell>
-                    <TableCell>{child.vaccinationDate}</TableCell>
+                    <TableCell>
+                      {child.vaccinationDate}
+                    </TableCell>
                     <TableCell>{child.guardianName}</TableCell>
                     <TableCell>{child.parentEmail}</TableCell>
                     <TableCell>{child.sex}</TableCell>
-                    {/* <TableCell>{child.previousVaccines}</TableCell> */}
                     <TableCell>{child.location}</TableCell>
                   </TableRow>
                 ))}
@@ -187,3 +191,5 @@ export default function Overview() {
     </div>
   );
 }
+
+// 

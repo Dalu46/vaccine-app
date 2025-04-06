@@ -1,9 +1,9 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@components/components/ui/button";
+"use client"
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Button } from "@components/components/ui/button"
 import {
   Form,
   FormControl,
@@ -12,49 +12,37 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@components/components/ui/form";
-import { Input } from "@components/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@components/components/ui/select";
-import { useToast } from "@components/hooks/use-toast";
-import { useAuthStore } from "../../../app/store/auth-store";
-import { collection, setDoc, doc } from "firebase/firestore";
-import { db } from "../../../app/firebase/config";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+} from "@components/components/ui/form"
+import { Input } from "@components/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/components/ui/select"
+import { useToast } from "@components/hooks/use-toast"
+import { useAuthStore } from "../../../app/store/auth-store"
+import { collection, setDoc, doc } from "firebase/firestore"
+import { db } from "../../../app/firebase/config"
+import { getAuth, onAuthStateChanged, type User } from "firebase/auth"
 
 export type Child = {
-  id: string;
-  name: string;
-  age: number;
-  vaccine: string;
-  vaccinationDate?: string;
-  guardianName: string;
-  guardianPhoneNumber: string; // Added guardianPhoneNumber
-  isVaccinated?: boolean;
-  parentId?: string;
-  parentEmail?: string;
-  previousVaccines?: string;
-  location?: string;
-  sex?: string;
-};
+  id: string
+  name: string
+  age: number
+  vaccine: string
+  guardianName: string
+  guardianPhoneNumber: string
+  isVaccinated?: boolean
+  parentId?: string
+  parentEmail?: string
+  previousVaccines?: string
+  location?: string
+  sex?: string
+}
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  age: z.coerce
-    .number()
-    .min(0, {
-      message: "Age must be 0 or greater.",
-    })
-    .max(18, {
-      message: "Age must be 18 or less.",
-    }),
+  age: z.string().min(1, {
+    message: "Please select an age group.",
+  }),
   vaccine: z.string().min(1, {
     message: "Please select a vaccine.",
   }),
@@ -65,7 +53,6 @@ const formSchema = z.object({
     message: "Guardian name must be at least 2 characters.",
   }),
   guardianPhoneNumber: z.string().min(10, {
-    // Added validation for phone number
     message: "Please enter a valid phone number (at least 10 digits).",
   }),
   previousVaccines: z.string().min(1, {
@@ -74,198 +61,80 @@ const formSchema = z.object({
   location: z.string().min(1, {
     message: "Please enter a location.",
   }),
-});
+})
 
 type AddChildFormProps = {
-  onAddChild: (
-    child: Omit<
-      Child,
-      | "id"
-      | "vaccinationDate"
-      | "isVaccinated"
-      | "parentId"
-      | "parentEmail"
-      | "previousVaccines"
-      | "location"
-      | "sex"
-      | "guardianPhoneNumber" // Added guardianPhoneNumber
-    >
-  ) => void;
-};
+  onAddChild: (child: Omit<Child, "id">) => void
+}
 
 export function AddChildForm({ onAddChild }: AddChildFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      age: 0,
+      age: "",
       vaccine: "",
       guardianName: "",
-      guardianPhoneNumber: "", // Added default value
+      guardianPhoneNumber: "",
+      sex: "",
+      previousVaccines: "",
+      location: "",
     },
-  });
+  })
 
-  const { toast } = useToast();
-  const [vacDate, setVacdate] = useState<string>();
+  const { toast } = useToast()
+  const [vacDate, setVacdate] = useState<string | undefined>(undefined)
 
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const isLoading = useAuthStore((state) => state.isLoading)
 
-  const [user, setUser] = useState<User | null>(null);
-  const auth = getAuth();
+  const [user, setUser] = useState<User | null>(null)
+  const auth = getAuth()
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
+      setUser(user)
+    })
 
-    return () => unsubscribe();
-  }, [auth, vacDate]);
+    return () => unsubscribe()
+  }, [auth, vacDate])
 
   if (user) {
-    console.log("User is signed in:", user);
-    console.log("User UID:", user.uid);
-    console.log("User Display Name:", user.displayName);
+    console.log("User is signed in:", user)
+    console.log("User UID:", user.uid)
+    console.log("User Display Name:", user.displayName)
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-      const _vaccinationDate = new Date();
-      _vaccinationDate.setDate(_vaccinationDate.getDate() + 7);
-
       const childData = {
         ...values,
         parentId: user?.uid,
         parentEmail: user?.email,
-        vaccinationDate: _vaccinationDate.toISOString(),
         isVaccinated: false,
-      };
+      }
 
       if (user) {
         setDoc(doc(collection(db, "users", user.uid, "children")), childData)
           .then(() => {
-            onAddChild(values);
-            form.reset();
+            console.log("children added")
+            onAddChild(values)
+            form.reset()
             toast({
               title: "Child Added",
-              description: "Child has been added to the vaccination list.",
-            });
-            setVacdate(_vaccinationDate.toISOString());
-            scheduleEmail(values.name, _vaccinationDate.toISOString());
-            sendRepeatedSms(
-              values.guardianPhoneNumber,
-              `Dear ${values.guardianName}, your child ${
-                values.name
-              } is scheduled for ${
-                values.vaccine
-              } vaccination on ${_vaccinationDate.toDateString()}. Please ensure they attend.`
-            );
+              description: `${childData.name} has been added to the vaccination list.`,
+            })
           })
           .catch((error) => {
-            console.error("Error adding child to database: ", error);
+            console.error("Error adding child to database: ", error)
             toast({
               title: "Error",
               description: "There was an error adding the child.",
-            });
-          });
+            })
+          })
       }
-    }
-
-    const sendImmediateEmail = async (name: string, date: string) => {
-      const emailData = {
-        to: `${user?.email}`,
-        subject: "Your Child's Polio Vaccination Scheduled",
-        message: `Dear ${user?.email},        
-  This email confirms that your child, ${name}, has been added to the polio vaccination list.
-  
-  Their vaccination is scheduled for: ${date}.
-  
-  Please do not reply to this automated message. If you have any questions, please contact vaxtrack00@gmail.com.
-  
-  Sincerely,
-  
-  The VaxTrack Team,      `,
-      };
-
-      console.log(JSON.stringify(emailData));
-
-      const response = await fetch("/api/sendemail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(emailData),
-      });
-
-      const result = await response.json();
-      console.log(result);
-
-      if (response.ok) {
-        console.log("Email sent successfully!");
-      } else {
-        console.log(result.error);
-      }
-    };
-
-    const scheduleEmail = (name: string, targetDateISO: string) => {
-      const targetDate = new Date(targetDateISO);
-
-      // Subtract one day (24 hours in milliseconds) from the target date
-      const oneDayBefore = new Date(targetDate.getTime() - 24 * 60 * 60 * 1000);
-      const currentDate = new Date();
-
-      // Calculate the delay in milliseconds from the current date to one day before the target date
-      const delay = oneDayBefore.getTime() - currentDate.getTime();
-      const delayed = 60 * 1000;
-
-      // Check if the adjusted time is in the past
-      if (delay <= 0) {
-        console.error(
-          "The specified adjusted time (one day before) is in the past. Please choose a future date."
-        );
-        return;
-      }
-
-      console.log(`Email scheduled to be sent in ${delay / 1000} seconds.`);
-      console.log(`One day before target date: ${oneDayBefore.toISOString()}`);
-
-      // Set a timeout to call the sendImmediateEmail function one day before the target date
-      setTimeout(() => {
-        console.log("Sending email now...");
-        sendImmediateEmail(name, targetDateISO);
-      }, delayed);
-    };
-
-    async function sendSms(to: string, body: string) {
-      const response = await fetch("/api/sendsms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to, body }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-    }
-
-    function sendRepeatedSms(to: string, body: string) {
-      let count = 0;
-      const intervalId = setInterval(() => {
-        sendSms(to, body);
-        count++;
-        toast({
-          title: "SMS Reminder Sent",
-          description: `Reminder ${count} of 3 sent to ${to}.`,
-        });
-
-        if (count >= 3) {
-          clearInterval(intervalId); // Stop after 3 times
-        }
-      }, 1 * 60 * 1000); // 2 minutes in milliseconds
     }
 
     return (
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 md:overflow-scroll md:h-[600px]"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 md:overflow-scroll md:h-[600px]">
           <p className="text-gray-600">
             Signed in as <strong>{user.displayName || user.email}</strong>
           </p>
@@ -278,9 +147,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                 <FormControl>
                   <Input placeholder="Enter child's name" {...field} />
                 </FormControl>
-                <FormDescription>
-                  This is your child's full name.
-                </FormDescription>
+                <FormDescription>This is your child's full name.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -291,15 +158,30 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Child's Age</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter child's age"
-                    type="number"
-                    {...field}
-                  />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value.toString()}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select child's age" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="0">At Birth</SelectItem>
+                    <SelectItem value="6 Weeks">6 Weeks</SelectItem>
+                    <SelectItem value="10 Weeks">10 Weeks</SelectItem>
+                    <SelectItem value="14 Weeks">14 Weeks</SelectItem>
+                    <SelectItem value="6 Months">6 Months</SelectItem>
+                    <SelectItem value="9 Months">9 Months</SelectItem>
+                    <SelectItem value="12 Months">12 Months</SelectItem>
+                    <SelectItem value="15-18 Months">15-18 Months</SelectItem>
+                    <SelectItem value="2 Years">2 Years</SelectItem>
+                    <SelectItem value="3 Years">3 Years</SelectItem>
+                    <SelectItem value="4-6 Years">4-6 Years</SelectItem>
+                    <SelectItem value="9 Years">9 Years</SelectItem>
+                    <SelectItem value="18+ Years">18+ Years</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormDescription>
-                  Enter your child's age in years.
+                  Select your child's age group for appropriate vaccine recommendations.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -312,10 +194,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sex</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select sex" />
@@ -324,9 +203,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                   <SelectContent>
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="not specified">
-                      Prefer not to say
-                    </SelectItem>
+                    <SelectItem value="not specified">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>Select childs sex.</FormDescription>
@@ -344,10 +221,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                 <FormControl>
                   <Input placeholder="Enter previous vaccines" {...field} />
                 </FormControl>
-                <FormDescription>
-                  Names of previous vaccines taking by the child (seperated by
-                  comma).
-                </FormDescription>
+                <FormDescription>Names of previous vaccines taking by the child (seperated by comma).</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -359,32 +233,92 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Vaccine</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a vaccine" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="MMR">
-                      MMR (Measles, Mumps, Rubella)
+                  <SelectContent className="max-h-[300px]">
+                    <SelectItem value="none">-- Select Vaccine --</SelectItem>
+
+                    <SelectItem value="birth_header" disabled className="font-bold">
+                      At Birth
                     </SelectItem>
-                    <SelectItem value="DTaP">
-                      DTaP (Diphtheria, Tetanus, Pertussis)
+                    <SelectItem value="BCG">BCG (Bacillus Calmette–Guérin) - Tuberculosis</SelectItem>
+                    <SelectItem value="HepB_0">Hepatitis B (HepB) - Birth Dose</SelectItem>
+                    <SelectItem value="OPV_0">Oral Polio Vaccine (OPV) - Birth Dose</SelectItem>
+
+                    <SelectItem value="6weeks_header" disabled className="font-bold">
+                      6 Weeks
                     </SelectItem>
-                    <SelectItem value="Polio">Polio</SelectItem>
-                    <SelectItem value="Hib">
-                      Hib (Haemophilus influenzae type b)
+                    <SelectItem value="Pentavalent_1">Pentavalent Vaccine (DPT, HepB, Hib) - 1st Dose</SelectItem>
+                    <SelectItem value="OPV_1">Oral Polio Vaccine (OPV) - 1st Dose</SelectItem>
+                    <SelectItem value="PCV_1">Pneumococcal Conjugate Vaccine (PCV) - 1st Dose</SelectItem>
+                    <SelectItem value="Rotavirus_1">Rotavirus Vaccine - 1st Dose</SelectItem>
+
+                    <SelectItem value="10weeks_header" disabled className="font-bold">
+                      10 Weeks
                     </SelectItem>
-                    <SelectItem value="HepB">Hepatitis B</SelectItem>
+                    <SelectItem value="Pentavalent_2">Pentavalent Vaccine - 2nd Dose</SelectItem>
+                    <SelectItem value="OPV_2">Oral Polio Vaccine (OPV) - 2nd Dose</SelectItem>
+                    <SelectItem value="PCV_2">Pneumococcal Conjugate Vaccine (PCV) - 2nd Dose</SelectItem>
+                    <SelectItem value="Rotavirus_2">Rotavirus Vaccine - 2nd Dose</SelectItem>
+
+                    <SelectItem value="14weeks_header" disabled className="font-bold">
+                      14 Weeks
+                    </SelectItem>
+                    <SelectItem value="Pentavalent_3">Pentavalent Vaccine - 3rd Dose</SelectItem>
+                    <SelectItem value="OPV_3">Oral Polio Vaccine (OPV) - 3rd Dose</SelectItem>
+                    <SelectItem value="IPV">Inactivated Polio Vaccine (IPV)</SelectItem>
+                    <SelectItem value="PCV_3">Pneumococcal Conjugate Vaccine (PCV) - 3rd Dose</SelectItem>
+
+                    <SelectItem value="6months_header" disabled className="font-bold">
+                      6 Months
+                    </SelectItem>
+                    <SelectItem value="VitaminA">Vitamin A Supplement</SelectItem>
+
+                    <SelectItem value="9months_header" disabled className="font-bold">
+                      9 Months
+                    </SelectItem>
+                    <SelectItem value="Measles_1">Measles Vaccine - 1st Dose</SelectItem>
+                    <SelectItem value="YellowFever">Yellow Fever Vaccine</SelectItem>
+                    <SelectItem value="MCV">Meningococcal Conjugate Vaccine (MCV)</SelectItem>
+
+                    <SelectItem value="12months_header" disabled className="font-bold">
+                      12 Months
+                    </SelectItem>
+                    <SelectItem value="Measles_2">Measles Vaccine - 2nd Dose</SelectItem>
+
+                    <SelectItem value="12to15months_header" disabled className="font-bold">
+                      12-15 Months
+                    </SelectItem>
+                    <SelectItem value="Varicella">Varicella Vaccine (Chickenpox)</SelectItem>
+
+                    <SelectItem value="15to18months_header" disabled className="font-bold">
+                      15-18 Months
+                    </SelectItem>
+                    <SelectItem value="DTP_Booster1">DTP Booster - 1st Dose</SelectItem>
+
+                    <SelectItem value="4to6years_header" disabled className="font-bold">
+                      4-6 Years
+                    </SelectItem>
+                    <SelectItem value="DTP_Booster2">DTP Booster - 2nd Dose</SelectItem>
+                    <SelectItem value="OPV_Booster">OPV Booster</SelectItem>
+                    <SelectItem value="MMR">Measles, Mumps, and Rubella (MMR) Vaccine</SelectItem>
+
+                    <SelectItem value="9years_header" disabled className="font-bold">
+                      9 Years
+                    </SelectItem>
+                    <SelectItem value="HPV">Human Papillomavirus (HPV) Vaccine</SelectItem>
+
+                    <SelectItem value="adolescents_header" disabled className="font-bold">
+                      Adolescents and Adults
+                    </SelectItem>
+                    <SelectItem value="Td">Tetanus and Diphtheria (Td) Vaccine (every 10 years)</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Select the vaccine to be administered.
-                </FormDescription>
+                <FormDescription>Select the vaccine to be administered based on the child's age group.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -418,9 +352,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  Enter the phone number of the child's guardian.
-                </FormDescription>
+                <FormDescription>Enter the phone number of the child's guardian.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -433,14 +365,9 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
               <FormItem>
                 <FormLabel>Location</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Manually enter childs's location"
-                    {...field}
-                  />
+                  <Input placeholder="Manually enter childs's location" {...field} />
                 </FormControl>
-                <FormDescription>
-                  What is your child's current location?
-                </FormDescription>
+                <FormDescription>What is your child's current location?</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -448,6 +375,7 @@ export function AddChildForm({ onAddChild }: AddChildFormProps) {
           <Button type="submit">Add Child</Button>
         </form>
       </Form>
-    );
+    )
   }
 }
+

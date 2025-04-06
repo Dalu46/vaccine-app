@@ -24,7 +24,7 @@ export type Child = {
   name: string;
   age: number;
   vaccine: string;
-  vaccinationDate: string;
+  vaccinationDate?: string;
   guardianName: string;
   isVaccinated: boolean;
 };
@@ -44,7 +44,7 @@ export default function ParentDashboard() {
           reject(new Error("User is not authenticated"));
           return;
         }
-
+  
         setUser(user)
   
         try {
@@ -55,24 +55,29 @@ export default function ParentDashboard() {
             const data = doc.data();
   
             // Extract and format the vaccination date from Firestore
-            const vaccinationDate = data.vaccinationDate instanceof Timestamp
-              ? data.vaccinationDate.toDate() // Convert Firestore Timestamp to a JavaScript Date object
-              : new Date(data.vaccinationDate); // If it's already a Date string
+            let formattedVaccinationDate = "Date not assigned yet"; // Default value
   
-            // Format the vaccination date as a human-readable string
-            const formattedVaccinationDate = new Intl.DateTimeFormat("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }).format(vaccinationDate);
+            if (data.vaccinationDate) {
+              const vaccinationDate =
+                data.vaccinationDate instanceof Timestamp
+                  ? data.vaccinationDate.toDate() // Convert Firestore Timestamp to a JavaScript Date object
+                  : new Date(data.vaccinationDate); // If it's already a Date string
+  
+              // Format the vaccination date as a human-readable string
+              formattedVaccinationDate = new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }).format(vaccinationDate);
+            }
   
             // Return the full child object with all required properties
             return {
               id: doc.id,
-              name: data.name,                 
+              name: data.name,
               age: data.age,
               vaccine: data.vaccine,
-              vaccinationDate: formattedVaccinationDate,  // Formatted date
+              vaccinationDate: formattedVaccinationDate,  // Formatted date or default message
               guardianName: data.guardianName,
               isVaccinated: data.isVaccinated, // Ensure all required properties are added
               sex: data.sex,
@@ -90,20 +95,22 @@ export default function ParentDashboard() {
     });
   };
   
+  
 
   useEffect(() => {
     fetchChildrenForParent();
   }, []);
 
+
   const addChild = (child: Omit<Child, "id" | "vaccinationDate">) => {
     const newChild = {
-      ...child,
-      id: Date.now().toString(),
-      vaccinationDate: new Date().toISOString().split("T")[0], // Current date formatted as YYYY-MM-DD
+        ...child,
+        id: Date.now().toString(),
+        // vaccinationDate: new Date().toISOString().split("T")[0], // Remove this line
     };
     setChildren((prevChildren) => [...prevChildren, newChild]);
     setIsDialogOpen(false);
-  };
+};
 
   const onDelete = async (child: Child) => {
     if (!user) {
@@ -126,33 +133,6 @@ export default function ParentDashboard() {
       console.log(error.message);
     }
   };
-
-  const sendImmediateEmail = async () => {
-    const emailData = {
-      to: "lawrencefranklin100@gmail.com",
-      subject: "Hello from Next.js!",
-      message: "This is a test email."
-    };
-
-    console.log(JSON.stringify(emailData));
-
-    const response = await fetch("/api/sendemail", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(emailData),
-    });
-
-    const result = await response.json();
-    console.log(result)
-
-    if (response.ok) {
-        console.log("Email sent successfully!");
-    } else {
-        console.log(result.error);
-    }
-};
 
   return (
     <div className="container mx-auto p-4 space-y-4">
